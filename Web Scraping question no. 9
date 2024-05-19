@@ -1,0 +1,35 @@
+// Create a web scraping tool using BeautifulSoup or Scrapy to extract data from a website and store it in a structured format (e.g., CSV, JSON, database).//
+ 
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import json
+
+# Step 1: Fetch the webpage content
+URL = "http://books.toscrape.com/"
+response = requests.get(URL)
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Step 2: Parse the HTML to extract data
+books = soup.find_all("article", class_="product_pod")
+
+# Step 3: Extract details for each book
+book_data = []
+
+for book in books:
+    title = book.h3.a["title"]
+    price = book.find("p", class_="price_color").text
+    availability = book.find("p", class_="instock availability").text.strip()
+    
+    book_data.append({"Title": title, "Price": price, "Availability": availability})
+
+# Step 4: Save the data to CSV and JSON
+# Save to CSV
+df = pd.DataFrame(book_data)
+df.to_csv("books.csv", index=False)
+
+# Save to JSON
+with open("books.json", "w") as json_file:
+    json.dump(book_data, json_file, indent=4)
+
+print("Data has been successfully saved to books.csv and books.json")
